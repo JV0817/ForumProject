@@ -5,6 +5,7 @@ from flask import render_template
 
 import pprint
 import os
+import pymongo
 
 # This code originally from https://github.com/lepture/flask-oauthlib/blob/master/example/github.py
 # Edited by P. Conrad for SPIS 2016 to add getting Client Id and Secret from
@@ -33,6 +34,13 @@ github = oauth.remote_app(
     authorize_url='https://github.com/login/oauth/authorize' #URL for github's OAuth login
 )
 
+
+connection_string = os.environ["MONGO_CONNECTION_STRING"]
+db_name = os.environ["MONGO_DBNAME"]
+
+client = pymongo.MongoClient(connection_string)
+db = client[db_name]
+collection = db['Forum']
 
 #context processors run before templates are rendered and add variable(s) to the template's context
 #context processors must return a dictionary 
@@ -85,6 +93,11 @@ def renderPage1():
 
 @app.route('/page2')
 def renderPage2():
+    if "Message" in request.form:
+        doc = {"Name":request.form["Message"]}
+        collection.insert_one(doc)
+    for doc in collection.find():
+        print(doc)
     return render_template('page2.html')
 
 @app.route('/googleb4c3aeedcc2dd103.html')
@@ -98,4 +111,4 @@ def get_github_oauth_token():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
