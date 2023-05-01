@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, session, request, jsonify
+from flask import Flask, redirect, url_for, session, request, jsonify, Markup
 from flask_oauthlib.client import OAuth
 #from flask_oauthlib.contrib.apps import github #import to make requests to GitHub's OAuth
 from flask import render_template
@@ -15,7 +15,7 @@ import pymongo
 app = Flask(__name__)
 
 app.debug = False #Change this to False for production
-#os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #Remove once done debugging
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #Remove once done debugging
 
 app.secret_key = os.environ['SECRET_KEY'] #used to sign session cookies
 oauth = OAuth(app)
@@ -55,7 +55,7 @@ def home():
 #redirect to GitHub's OAuth page and confirm callback URL
 @app.route('/login')
 def login(): 
-    return github.authorize(callback=url_for('authorized', _external=True, _scheme='https')) #callback URL must match the pre-configured callback URL
+    return github.authorize(callback=url_for('authorized', _external=True, _scheme='http')) #callback URL must match the pre-configured callback URL
 
 @app.route('/logout')
 def logout():
@@ -90,19 +90,21 @@ def renderPage1():
         user_data_pprint = '';
     return render_template('page1.html',dump_user_data=user_data_pprint)
 
-@app.route('/page2')
+@app.route('/page2', methods=['GET','POST'])
 def renderPage2():
     if "Message" in request.form:
         doc = {"Name":request.form["Message"]}
         collection.insert_one(doc)
+    va=""
     for doc in collection.find():
-        print(doc)
-    return render_template('page2.html')
+        va=va+Markup('<p class="Post">'+(doc["Name"])+"</p>")
+    return render_template('page2.html',post=va)
 
 @app.route('/googleb4c3aeedcc2dd103.html')
 def render_google_verification():
     return render_template('googleb4c3aeedcc2dd103.html')
-
+    
+    
 #the tokengetter is automatically called to check who is logged in.
 @github.tokengetter
 def get_github_oauth_token():
