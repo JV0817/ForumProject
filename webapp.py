@@ -41,8 +41,6 @@ client = pymongo.MongoClient(connection_string)
 db = client[db_name]
 collection = db['Forum']
 
-  
-
 #context processors run before templates are rendered and add variable(s) to the template's context
 #context processors must return a dictionary 
 #this context processor adds the variable logged_in to the conext for all templates
@@ -56,7 +54,7 @@ def home():
 
 #redirect to GitHub's OAuth page and confirm callback URL
 @app.route('/login')
-def login():   
+def login(): 
     return github.authorize(callback=url_for('authorized', _external=True, _scheme='https')) #callback URL must match the pre-configured callback URL
 
 @app.route('/logout')
@@ -84,7 +82,7 @@ def authorized():
     return render_template('message.html', message=message)
 
 
-@app.route('/page1')
+@app.route('/page1',)
 def renderPage1():
     if 'user_data' in session:
         user_data_pprint = pprint.pformat(session['user_data'])#format the user data nicely
@@ -113,3 +111,4 @@ def get_github_oauth_token():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
