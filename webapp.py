@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, session, request, jsonify
+from flask import Flask, redirect, url_for, session, request, jsonify, Markup
 from flask_oauthlib.client import OAuth
 #from flask_oauthlib.contrib.apps import github #import to make requests to GitHub's OAuth
 from flask import render_template
@@ -90,19 +90,21 @@ def renderPage1():
         user_data_pprint = '';
     return render_template('page1.html',dump_user_data=user_data_pprint)
 
-@app.route('/page2')
+@app.route('/page2', methods=['GET','POST'])
 def renderPage2():
     if "Message" in request.form:
         doc = {"Name":request.form["Message"]}
         collection.insert_one(doc)
+    va=""
     for doc in collection.find():
-        print(doc)
-    return render_template('page2.html')
+        va=va+Markup('<p class="Post">'+(doc["Name"])+"</p>")
+    return render_template('page2.html',post=va)
 
 @app.route('/googleb4c3aeedcc2dd103.html')
 def render_google_verification():
     return render_template('googleb4c3aeedcc2dd103.html')
-
+    
+    
 #the tokengetter is automatically called to check who is logged in.
 @github.tokengetter
 def get_github_oauth_token():
